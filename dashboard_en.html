@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capacity Calculator - IKC</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        
+        .dashboard { 
+            padding: 2rem 1rem; 
+            max-width: 1400px; 
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1F4E78 0%, #2E5C8A 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        
+        h1 { 
+            font-size: 32px; 
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        h2 { 
+            font-size: 20px; 
+            font-weight: 600; 
+            margin-top: 2rem;
+            margin-bottom: 1rem; 
+            color: #1f4e78;
+            border-bottom: 3px solid #378ADD;
+            padding-bottom: 0.5rem;
+        }
+        
+        .kpi-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 16px; 
+            margin-bottom: 2rem; 
+        }
+        
+        .kpi-card { 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 5px solid #378ADD;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .kpi-label { 
+            font-size: 12px; 
+            color: #666; 
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        
+        .kpi-value { 
+            font-size: 28px; 
+            font-weight: 700; 
+            color: #1f4e78;
+        }
+        
+        .kpi-subtitle { 
+            font-size: 12px; 
+            color: #999; 
+            margin-top: 6px; 
+        }
+        
+        .alert-box {
+            background: #fff9e6;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .alert-box strong {
+            color: #ff6b6b;
+        }
+        
+        .input-section {
+            background: #fafbfc;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .family-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 16px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .family-input { 
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 2px solid #378ADD;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .family-name { 
+            font-weight: 700; 
+            font-size: 14px; 
+            margin-bottom: 10px;
+            color: #1f4e78;
+        }
+        
+        .month-inputs { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 8px;
+        }
+        
+        input[type="number"] { 
+            width: 100%; 
+            padding: 8px 10px; 
+            border: 2px solid #FFF2CC;
+            border-radius: 4px; 
+            font-size: 13px;
+            font-weight: 500;
+            background: #FFFEF0;
+        }
+        
+        input[type="number"]:focus { 
+            outline: none; 
+            border-color: #378ADD;
+            background: #f0f8ff;
+            box-shadow: 0 0 0 3px rgba(55, 138, 221, 0.1);
+        }
+        
+        input[type="number"]::placeholder {
+            color: #bbb;
+        }
+        
+        .button-group { 
+            display: flex; 
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        button { 
+            padding: 10px 20px; 
+            border: 2px solid #378ADD;
+            border-radius: 6px; 
+            background: #378ADD;
+            color: white;
+            cursor: pointer; 
+            font-size: 14px; 
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        button:hover { 
+            background: #2565c4;
+            border-color: #2565c4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(55, 138, 221, 0.3);
+        }
+        
+        button:active { 
+            transform: scale(0.98);
+        }
+        
+        button.secondary {
+            background: white;
+            color: #378ADD;
+            border: 2px solid #378ADD;
+        }
+        
+        button.secondary:hover {
+            background: #f0f8ff;
+        }
+        
+        .chart-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); 
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-card { 
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .chart-title { 
+            font-size: 16px; 
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1f4e78;
+        }
+        
+        .canvas-wrapper { 
+            position: relative; 
+            width: 100%; 
+            height: 350px;
+            margin-bottom: 1rem;
+        }
+        
+        .legend { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 16px; 
+            margin-bottom: 1rem; 
+            font-size: 13px;
+        }
+        
+        .legend-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 6px;
+        }
+        
+        .legend-color { 
+            width: 14px; 
+            height: 14px; 
+            border-radius: 2px;
+        }
+        
+        .status-badge { 
+            display: inline-block; 
+            padding: 6px 12px; 
+            border-radius: 4px; 
+            font-size: 12px; 
+            font-weight: 700;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+        
+        .badge-ok { 
+            background: #d4edda; 
+            color: #155724;
+        }
+        
+        .badge-warning { 
+            background: #fff3cd; 
+            color: #856404;
+        }
+        
+        .badge-danger { 
+            background: #f8d7da; 
+            color: #721c24;
+        }
+        
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .summary-table th {
+            background: #378ADD;
+            color: white;
+            padding: 12px;
+            text-align: right;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        .summary-table th:first-child {
+            text-align: left;
+        }
+        
+        .summary-table td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 13px;
+        }
+        
+        .summary-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+            color: #1f4e78;
+        }
+        
+        .summary-table tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .summary-table .row-available {
+            background: #e2efda;
+        }
+        
+        .summary-table .row-consumed {
+            background: #fce4d6;
+        }
+        
+        .summary-table .row-remaining {
+            background: #fff2cc;
+            font-weight: 700;
+        }
+        
+        .summary-table .row-utilization {
+            background: #e2efda;
+        }
+        
+        @media (max-width: 768px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .dashboard {
+                padding: 1rem;
+            }
+            .month-inputs {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>📊 Capacity Calculator IKC</h1>
+            <div class="subtitle">August - December 2026 | Interactive Capacity Planning Tool</div>
+        </div>
+        
+        <h2>Quick Start Guide</h2>
+        <div class="alert-box">
+            <strong>👉 How to use this tool:</strong><br>
+            1️⃣ Review "Available Capacity by Month" - this is your reference standard capacity<br>
+            2️⃣ Check "Factors per Program" - understand how each program scales<br>
+            3️⃣ Enter your demand in yellow cells under "Demand Input" - this is the key step!<br>
+            4️⃣ Watch the graphs update in real-time showing your capacity utilization<br>
+            5️⃣ Check "Status" section - Green=OK, Yellow=Warning (>80%), Red=Over capacity
+        </div>
+        
+        <h2>Available Capacity by Month</h2>
+        <p style="color: #666; margin-bottom: 1rem; font-size: 13px;">
+            This is the total standard capacity available for each month. All programs will be measured against these numbers using their conversion factors.
+        </p>
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">August</div>
+                <div class="kpi-value">9,906</div>
+                <div class="kpi-subtitle">Standard Units</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">September</div>
+                <div class="kpi-value">152,384</div>
+                <div class="kpi-subtitle">Standard Units</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">October</div>
+                <div class="kpi-value">248,234</div>
+                <div class="kpi-subtitle">Standard Units</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">November</div>
+                <div class="kpi-value">222,844</div>
+                <div class="kpi-subtitle">Standard Units</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">December</div>
+                <div class="kpi-value">185,964</div>
+                <div class="kpi-subtitle">Standard Units</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">TOTAL</div>
+                <div class="kpi-value">819,332</div>
+                <div class="kpi-subtitle">All Months Combined</div>
+            </div>
+        </div>
+
+        <h2>Conversion Factors by Program</h2>
+        <p style="color: #666; margin-bottom: 1rem; font-size: 13px;">
+            Each program has a conversion factor. <strong>If factor > 1:</strong> You can produce MORE units than standard capacity. <strong>If factor < 1:</strong> You can produce FEWER units.
+        </p>
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Game</div>
+                <div class="kpi-value">0.63x</div>
+                <div class="kpi-subtitle">Example: 9,906 × 0.63 = 6,241 units</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Legend</div>
+                <div class="kpi-value">1.73x</div>
+                <div class="kpi-subtitle">Example: 9,906 × 1.73 = 17,137 units</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">MLB</div>
+                <div class="kpi-value">0.69x</div>
+                <div class="kpi-subtitle">Example: 9,906 × 0.69 = 6,835 units</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">NBA</div>
+                <div class="kpi-value">0.82x</div>
+                <div class="kpi-subtitle">Example: 9,906 × 0.82 = 8,123 units</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">XC2</div>
+                <div class="kpi-value">0.32x</div>
+                <div class="kpi-subtitle">Example: 9,906 × 0.32 = 3,169 units</div>
+            </div>
+        </div>
+
+        <h2>Enter Your Demand Here 👇</h2>
+        <div class="alert-box">
+            <strong>⚠️ THIS IS THE KEY SECTION!</strong><br>
+            Enter the number of units you want to produce for each program in each month (YELLOW CELLS). 
+            The calculator will automatically show you how much capacity each demand consumes and validate if it fits within your limits.
+        </div>
+        <div class="input-section">
+            <div class="family-grid">
+                <div class="family-input">
+                    <div class="family-name">Game (0.63x)</div>
+                    <div class="month-inputs">
+                        <input type="number" id="game_Aug" placeholder="Aug" />
+                        <input type="number" id="game_Sep" placeholder="Sep" />
+                        <input type="number" id="game_Oct" placeholder="Oct" />
+                        <input type="number" id="game_Nov" placeholder="Nov" />
+                        <input type="number" id="game_Dec" placeholder="Dec" />
+                    </div>
+                </div>
+                <div class="family-input">
+                    <div class="family-name">Legend (1.73x)</div>
+                    <div class="month-inputs">
+                        <input type="number" id="legend_Aug" placeholder="Aug" />
+                        <input type="number" id="legend_Sep" placeholder="Sep" />
+                        <input type="number" id="legend_Oct" placeholder="Oct" />
+                        <input type="number" id="legend_Nov" placeholder="Nov" />
+                        <input type="number" id="legend_Dec" placeholder="Dec" />
+                    </div>
+                </div>
+                <div class="family-input">
+                    <div class="family-name">MLB (0.69x)</div>
+                    <div class="month-inputs">
+                        <input type="number" id="mlb_Aug" placeholder="Aug" />
+                        <input type="number" id="mlb_Sep" placeholder="Sep" />
+                        <input type="number" id="mlb_Oct" placeholder="Oct" />
+                        <input type="number" id="mlb_Nov" placeholder="Nov" />
+                        <input type="number" id="mlb_Dec" placeholder="Dec" />
+                    </div>
+                </div>
+                <div class="family-input">
+                    <div class="family-name">NBA (0.82x)</div>
+                    <div class="month-inputs">
+                        <input type="number" id="nba_Aug" placeholder="Aug" />
+                        <input type="number" id="nba_Sep" placeholder="Sep" />
+                        <input type="number" id="nba_Oct" placeholder="Oct" />
+                        <input type="number" id="nba_Nov" placeholder="Nov" />
+                        <input type="number" id="nba_Dec" placeholder="Dec" />
+                    </div>
+                </div>
+                <div class="family-input">
+                    <div class="family-name">XC2 (0.32x)</div>
+                    <div class="month-inputs">
+                        <input type="number" id="xc2_Aug" placeholder="Aug" />
+                        <input type="number" id="xc2_Sep" placeholder="Sep" />
+                        <input type="number" id="xc2_Oct" placeholder="Oct" />
+                        <input type="number" id="xc2_Nov" placeholder="Nov" />
+                        <input type="number" id="xc2_Dec" placeholder="Dec" />
+                    </div>
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="secondary" onclick="limpiar()">🔄 Clear All</button>
+                <button onclick="descargarExcel()">📥 Download Excel Report</button>
+            </div>
+        </div>
+
+        <h2>Capacity Visualization</h2>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <div class="chart-title">Monthly Capacity Utilization</div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #378ADD;"></div>
+                        <span>Available Capacity</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #639922;"></div>
+                        <span>Consumed Capacity</span>
+                    </div>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="chartCapacidad"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">Demand by Program</div>
+                <div class="legend" id="legendFamilias"></div>
+                <div class="canvas-wrapper">
+                    <canvas id="chartFamilias"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <h2>Monthly Summary & Status ✓</h2>
+        <p style="color: #666; margin-bottom: 1rem; font-size: 13px;">
+            <strong>Interpret your results here!</strong> This section shows how much of your available capacity you're using each month. 
+            <strong style="color: #1f4e78;">Green (✓ OK) = Under 80% | Yellow (⚠️) = 80-100% | Red (🚫) = Over 100% capacity!</strong>
+        </p>
+        <table class="summary-table">
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>August</th>
+                    <th>September</th>
+                    <th>October</th>
+                    <th>November</th>
+                    <th>December</th>
+                </tr>
+            </thead>
+            <tbody id="summaryBody"></tbody>
+        </table>
+
+        <div style="margin-top: 2rem; padding: 1rem; background: #f0f8ff; border-radius: 8px; border-left: 4px solid #378ADD;">
+            <p style="font-size: 13px; color: #666; line-height: 1.6;">
+                <strong>💡 Pro Tips:</strong><br>
+                • Mix programs strategically - programs with factor > 1 allow you to produce more units<br>
+                • Watch the remaining capacity in real-time as you adjust your demand<br>
+                • If you're close to capacity (>80%), consider reducing demand for some programs<br>
+                • Download the Excel report to share with your team or archive your planning
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+
+    <script>
+        const capacidades = { Aug: 9906, Sep: 152384, Oct: 248234, Nov: 222844, Dec: 185964 };
+        const factores = { Game: 0.63, Legend: 1.73, MLB: 0.69, NBA: 0.82, XC2: 0.32 };
+        const meses = ['Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const familias = ['Game', 'Legend', 'MLB', 'NBA', 'XC2'];
+        const coloresFamilias = ['#378ADD', '#639922', '#D85A30', '#BA7517', '#1D9E75'];
+        
+        let chartCapacidad = null;
+        let chartFamilias = null;
+
+        const inputs = {};
+        familias.forEach(f => {
+            meses.forEach(m => {
+                const id = `${f.toLowerCase()}_${m}`;
+                inputs[id] = document.getElementById(id);
+                if (inputs[id]) {
+                    inputs[id].addEventListener('input', actualizar);
+                }
+            });
+        });
+
+        function obtenerValor(familia, mes) {
+            return parseFloat(inputs[`${familia.toLowerCase()}_${mes}`].value) || 0;
+        }
+
+        function calcularConsumo(familia, cantidad) {
+            return cantidad / factores[familia];
+        }
+
+        function actualizar() {
+            const dataCapacidad = { disponible: [], consumido: [] };
+            const dataFamilias = {};
+            
+            familias.forEach(f => dataFamilias[f] = []);
+            
+            meses.forEach(mes => {
+                let consumoMes = 0;
+                familias.forEach(f => {
+                    const cant = obtenerValor(f, mes);
+                    const consumo = calcularConsumo(f, cant);
+                    consumoMes += consumo;
+                    dataFamilias[f].push(consumo);
+                });
+                
+                const capacidad = capacidades[mes];
+                const disponible = Math.max(0, capacidad - consumoMes);
+                
+                dataCapacidad.disponible.push(disponible);
+                dataCapacidad.consumido.push(consumoMes);
+            });
+
+            actualizarGraficoCapacidad(dataCapacidad);
+            actualizarGraficoFamilias(dataFamilias);
+            actualizarStatus(dataCapacidad);
+        }
+
+        function actualizarGraficoCapacidad(data) {
+            const ctx = document.getElementById('chartCapacidad').getContext('2d');
+            
+            if (chartCapacidad) chartCapacidad.destroy();
+            
+            chartCapacidad = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: meses,
+                    datasets: [
+                        {
+                            label: 'Available Capacity',
+                            data: data.disponible,
+                            backgroundColor: '#378ADD',
+                            borderWidth: 0,
+                        },
+                        {
+                            label: 'Consumed Capacity',
+                            data: data.consumido,
+                            backgroundColor: '#639922',
+                            borderWidth: 0,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + Math.round(context.parsed.x).toLocaleString('en-US');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return (value / 1000).toFixed(0) + 'K';
+                                }
+                            }
+                        },
+                        y: { stacked: true }
+                    }
+                }
+            });
+        }
+
+        function actualizarGraficoFamilias(data) {
+            const ctx = document.getElementById('chartFamilias').getContext('2d');
+            
+            if (chartFamilias) chartFamilias.destroy();
+            
+            const datasets = familias.map((f, idx) => ({
+                label: f,
+                data: data[f],
+                backgroundColor: coloresFamilias[idx],
+                borderWidth: 0,
+            }));
+
+            actualizarLegendaFamilias();
+            
+            chartFamilias = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: meses,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + Math.round(context.parsed.y).toLocaleString('en-US');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            stacked: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return (value / 1000).toFixed(0) + 'K';
+                                }
+                            }
+                        },
+                        x: { stacked: true }
+                    }
+                }
+            });
+        }
+
+        function actualizarLegendaFamilias() {
+            let html = '';
+            familias.forEach((f, idx) => {
+                html += `<div class="legend-item">
+                    <div class="legend-color" style="background: ${coloresFamilias[idx]};"></div>
+                    <span>${f}</span>
+                </div>`;
+            });
+            document.getElementById('legendFamilias').innerHTML = html;
+        }
+
+        function actualizarStatus(data) {
+            let html = `
+                <tr class="row-available">
+                    <td>Available Capacity (Std Units)</td>
+            `;
+            meses.forEach(mes => {
+                html += `<td>${capacidades[mes].toLocaleString('en-US')}</td>`;
+            });
+            html += `</tr>`;
+            
+            html += `<tr class="row-consumed"><td>Total Consumed (Std Units)</td>`;
+            data.consumido.forEach(val => {
+                html += `<td>${Math.round(val).toLocaleString('en-US')}</td>`;
+            });
+            html += `</tr>`;
+            
+            html += `<tr class="row-remaining"><td>Remaining Capacity</td>`;
+            data.disponible.forEach(val => {
+                html += `<td>${Math.round(val).toLocaleString('en-US')}</td>`;
+            });
+            html += `</tr>`;
+            
+            html += `<tr class="row-utilization"><td>Utilization %</td>`;
+            data.consumido.forEach((val, idx) => {
+                const util = capacidades[meses[idx]] > 0 ? (val / capacidades[meses[idx]] * 100) : 0;
+                html += `<td>${util.toFixed(1)}%</td>`;
+            });
+            html += `</tr>`;
+            
+            html += `<tr><td>Status</td>`;
+            data.consumido.forEach((val, idx) => {
+                const cap = capacidades[meses[idx]];
+                let badgeClass = 'badge-ok';
+                let statusText = '✓ OK';
+                
+                if (val > cap) {
+                    badgeClass = 'badge-danger';
+                    statusText = '🚫 OVER';
+                } else if (val > cap * 0.8) {
+                    badgeClass = 'badge-warning';
+                    statusText = '⚠️ WARNING';
+                }
+                
+                html += `<td><span class="status-badge ${badgeClass}">${statusText}</span></td>`;
+            });
+            html += `</tr>`;
+            
+            document.getElementById('summaryBody').innerHTML = html;
+        }
+
+        function limpiar() {
+            Object.values(inputs).forEach(inp => inp.value = '');
+            actualizar();
+        }
+
+        function descargarExcel() {
+            const data = [];
+            data.push(['CAPACITY CALCULATOR IKC - DEMAND REPORT', '', '', '', '', '']);
+            data.push(['Generated:', new Date().toLocaleDateString('en-US'), '', '', '', '']);
+            data.push(['']);
+            
+            data.push(['DEMAND ENTERED BY CUSTOMER', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);
+            familias.forEach(f => {
+                const fila = [f];
+                meses.forEach(m => fila.push(obtenerValor(f, m)));
+                data.push(fila);
+            });
+            
+            data.push(['']);
+            data.push(['STANDARD CAPACITY CONSUMED', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);
+            familias.forEach(f => {
+                const fila = [f];
+                meses.forEach(m => {
+                    const cant = obtenerValor(f, m);
+                    fila.push(calcularConsumo(f, cant).toFixed(2));
+                });
+                data.push(fila);
+            });
+            
+            data.push(['']);
+            data.push(['CAPACITY SUMMARY', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);
+            data.push(['Available Capacity', 9906, 152384, 248234, 222844, 185964]);
+            
+            const consumoTotales = [];
+            meses.forEach(m => {
+                const total = familias.reduce((sum, f) => sum + calcularConsumo(f, obtenerValor(f, m)), 0);
+                consumoTotales.push(total.toFixed(2));
+            });
+            data.push(['Total Consumed', ...consumoTotales]);
+            
+            const restantes = [];
+            meses.forEach((m, i) => {
+                const restante = capacidades[m] - parseFloat(consumoTotales[i]);
+                restantes.push(Math.max(0, restante).toFixed(2));
+            });
+            data.push(['Remaining Capacity', ...restantes]);
+            
+            const utilizaciones = [];
+            meses.forEach((m, i) => {
+                const util = (parseFloat(consumoTotales[i]) / capacidades[m] * 100).toFixed(1);
+                utilizaciones.push(util + '%');
+            });
+            data.push(['Utilization %', ...utilizaciones]);
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Report");
+            
+            ws.column_widths = [30, 15, 15, 15, 15, 15];
+            XLSX.writeFile(wb, 'Capacity_Calculator_Report.xlsx');
+        }
+
+        actualizar();
+    </script>
+</body>
+</html>
